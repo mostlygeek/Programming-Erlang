@@ -3,8 +3,35 @@
 %% of N * M messages get sent. Time how long this takes 
 %% for different values of N and M.
 
+%% Aug 31, 2011
+%%
+%% Usage:  
+%% == COMPILING ===
+%%  > c(ch8ring) 
+%%    -- builds the regular version. just start/end timing
+%% 
+%%  > c(ch8ring, {d, debug}) 
+%%    -- builds the debug version *lots* of output
+%%    -- note: run this with a small N & M. 
+%%    -- ie: ch8ring:bench(10,100) -- 10 processes, 100 times around the ring
+%%    
+%% == RUNNING == 
+%%  > ch8ring:bench(N, M)
+%%    -- starts up N processes in a ring. 
+%%    -- sends a message around M times the ring.
+%%    
+%% == DESIGN ==
+%%  This creates a real ring where a message goes from Process 1 -> N. 
+%%  
+%%  In order to do this, when process N is created, it sends a message to 
+%%  process 1 to link to it. There is no state, just message passing. 
+%%  
+%%  I'm sure when I learn more about Erlang I'll know if this is dumb 
+%%  approach or not. :)
+%%
+   
 -module(ch8ring).
--export([create/1,bench/2]).
+-export([bench/2]).
 
 -ifdef(debug).
 -define(DEBUG(X,Y), io:format(X,Y)).
@@ -24,11 +51,11 @@ create(N) ->
     ?DEBUG(" - Created first node: ~p~n", [First]),    
     create(N-1, First, First),    
     First.
+
     
 create(0, First, PassTo) ->
     ?DEBUG("msg to ~p to set passTo to ~p~n",[First,PassTo]),
-    First ! {passTo, PassTo};
-    
+    First ! {passTo, PassTo};    
 create(N, First, PassTo) ->
     Pid = spawn(fun() -> loop(PassTo) end),
     ?DEBUG(" - Created ~p with pass to ~p~n", [Pid, PassTo]),
@@ -67,9 +94,9 @@ loop(PassTo) ->
             end,
             loop(PassTo);
     
-        % send a stop command down the line
+        % stops all processes in the ring
         stop ->
             ?DEBUG("  ~p stopping~n",[self()]),
             PassTo ! stop,
-            true
+            ok
     end.
