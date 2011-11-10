@@ -5,5 +5,4 @@
   {registered, [sc_sup]}, 
   {applications, [kernel, stdlib]}, 
   {mod, {sc_app, []}}
- ]
-}
+ ]}.

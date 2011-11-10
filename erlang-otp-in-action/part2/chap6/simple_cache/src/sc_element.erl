@@ -56,7 +56,7 @@ init([Value, LeaseTime]) ->
     time_left(StartTime, LeaseTime)}.
 
 time_left(_StartTime, infinity) ->
-    infinity.
+    infinity;
 time_left(StartTime, LeaseTime) ->
     Now = calendar:local_time(), 
     CurrentTime = calendar:datetime_to_gregorian_seconds(Now), 
