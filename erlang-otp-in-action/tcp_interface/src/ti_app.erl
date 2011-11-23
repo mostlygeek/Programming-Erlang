@@ -10,7 +10,7 @@ start(_StartType, _StartArgs) ->
                undefined -> ?DEFAULT_PORT
            end, 
     {ok, LSock} = gen_tcp:listen(Port, [{active, true}]), 
-    case t_sup:start_link(LSock) of
+    case ti_sup:start_link(LSock) of
         {ok, Pid} ->
             ti_sup:start_child(), 
             {ok, Pid};
